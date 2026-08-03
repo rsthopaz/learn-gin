@@ -25,5 +25,7 @@ func SetupApp() *fiber.App {
 		return c.SendString("Hello, World!")
 	})
 
+	routes.AuthRoutes(app)
+
 	return app
 }

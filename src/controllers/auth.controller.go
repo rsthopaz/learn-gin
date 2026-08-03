@@ -8,6 +8,8 @@ import (
 	"github.com/gofiber/fiber/v3"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
+	"github.com/golang-jwt/jwt/v5"
+	
 )
 
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
@@ -21,7 +23,7 @@ func RegisterUser(c fiber.Ctx) error {
 
 var body request
 
-if err := c.BodyParser(&body); err != nil {
+if err := c.Bind().Body(&body); err != nil {
 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot parse request"})
 }
 
@@ -57,7 +59,7 @@ func LoginUser(c fiber.Ctx) error {
 
 	var body request
 
-	if err := c.BodyParser(&body); err != nil {
+	if err := c.Bind().Body(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": " Cannot parse request"})
 	}
 
@@ -73,9 +75,9 @@ func LoginUser(c fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Invalid credentials"})
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaimns{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"userId": user.ID.Hex(),
-		"exp": time.Now().Add(24 * time.hour).Unix(),
+		"exp": time.Now().Add(24 * time.Hour).Unix(),
 	})
 
 	t, err := token.SignedString(jwtSecret)
