@@ -92,3 +92,14 @@ func LoginUser(c fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{"message": "Logged in succesfuly"})
 }
+
+func LogoutUser(c fiber.Ctx) error {
+	c.Cookie(&fiber.Cookie{
+		Name: "jwt",
+		Value: "",
+		Expires: time.Now().Add(-time.Hour),
+		HTTPOnly: true,
+	})
+
+	return c.JSON(fiber.Map{"message": "Logged out successfully"})
+}
