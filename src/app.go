@@ -3,6 +3,7 @@ package src
 import (
 	"log"
 	"main/src/db"
+	"main/src/routes"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/joho/godotenv"
