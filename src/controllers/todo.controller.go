@@ -106,6 +106,19 @@ func DeleteTodo (c fiber.Ctx) error {
 }
 
 func UpdateTodo (c fiber.Ctx) error {
+
+	todoId := c.Params("id")
+	userId := c.Locals("userId").(string)
+
+	objId, err := primitive.ObjectIDFromHex(todoId)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error" : "Invalid todo ID",
+		})
+	}
+
+
 	type body struct {
 		Title	string `json:"title"`
 		Description	string `json:"description"`
@@ -134,6 +147,27 @@ func UpdateTodo (c fiber.Ctx) error {
 	if len(update) == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error" : "No fields to update",
+		})
+	}
+
+	filter := bson.M{
+		"_id": objId,
+		"userId": userId,
+	}
+
+	result, err := db.DB.Collection("todos").UpdateOne(c.Context(), filter, bson.M{
+		"$set" : update,
+	})
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error" : "Cannot update todo",
+		})
+	}
+
+	if result.MatchedCount == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Todo not found",
 		})
 	}
 
