@@ -67,3 +67,111 @@ func GetTodos (c fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{"todos" : todos})
 }
+
+func DeleteTodo (c fiber.Ctx) error {
+	todoId := c.Params("id")
+	userId := c.Locals("userId").(string)
+
+	objId, err := primitive.ObjectIDFromHex(todoId)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error" : "Invalid todo ID",
+		})
+	}
+
+	filter := bson.M{
+		"_id": objId,
+		"userId": userId,
+	}
+
+	result, err := db.DB.Collection("todos").DeleteOne(c.Context(), filter) 
+	
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Cannot delete todo",
+		})
+	}
+
+	if result.DeletedCount == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error" : "Todo not found",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Todo deleted successfully",
+	})
+
+
+}
+
+func UpdateTodo (c fiber.Ctx) error {
+
+	todoId := c.Params("id")
+	userId := c.Locals("userId").(string)
+
+	objId, err := primitive.ObjectIDFromHex(todoId)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error" : "Invalid todo ID",
+		})
+	}
+
+
+	type body struct {
+		Title	string `json:"title"`
+		Description	string `json:"description"`
+		Status	string `json:"status"`
+	}
+
+	var data body
+	if err := c.Bind().Body(&data); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot parse JSON"})
+	}
+
+	update := bson.M{}
+
+	if data.Title != ""{
+		update["title"] = data.Title
+	}
+
+	if data.Description != ""{
+		update["description"] = data.Description
+	}
+
+	if data.Status != ""{
+		update["status"] = data.Status
+	}
+
+	if len(update) == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error" : "No fields to update",
+		})
+	}
+
+	filter := bson.M{
+		"_id": objId,
+		"userId": userId,
+	}
+
+	result, err := db.DB.Collection("todos").UpdateOne(c.Context(), filter, bson.M{
+		"$set" : update,
+	})
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error" : "Cannot update todo",
+		})
+	}
+
+	if result.MatchedCount == 0 {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Todo not found",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message" : "Update sucessfully",
+	})
+}
