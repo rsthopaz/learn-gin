@@ -33,7 +33,7 @@ func AuthMiddleware(c fiber.Ctx) error {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token expired"})
 	}
 	
-	c.Locals("userId", claims["userID"])
+	c.Locals("userId", claims["userId"])
 
 	return c.Next()
 

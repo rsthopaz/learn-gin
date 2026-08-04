@@ -43,3 +43,25 @@ func CreateTodo(c fiber.Ctx) error {
 		"todo": todo
 })
 }
+
+func GetTodos (c fiber.Ctx) error {
+	userId := c.Locals("userId").(string)
+
+	cursor, err := db.DB.Collection("todos").Find(c.Context(), bson.M{
+		"userId": userId,
+	})
+
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Cannot find todos"})
+	}
+
+	var todos []bson.M
+
+	if err := cursor.All(c.Context(), &todos); err != nil {
+		return c.Status(fibr.StatusInternalServerError).JSON(fiber.Map{
+			"error" : "Cannot parse todos"
+		})
+	}
+
+	return c.JSON(fiber.Map{"todos" : todos})
+}
