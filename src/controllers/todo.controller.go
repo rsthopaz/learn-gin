@@ -75,7 +75,7 @@ func DeleteTodo (c fiber.Ctx) error {
 	objId, err := primitive.ObjectIDFromHex(todoId)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error" : "Invalid todo ID"
+			"error" : "Invalid todo ID",
 		})
 	}
 
@@ -88,23 +88,23 @@ func DeleteTodo (c fiber.Ctx) error {
 	
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Cannot delete todo"
+			"error": "Cannot delete todo",
 		})
 	}
 
 	if result.DeletedCount == 0 {
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"error" : "Todo not found"
+			"error" : "Todo not found",
 		})
 	}
 
-	return c.Status(fibr.StatusOK).JSON(fiber.Map{
-		"message": "Todo deleted successfully"
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Todo deleted successfully",
 	})
 
 
 }
 
-func UpdateTodo (c fibre.Ctx) error {
+// func UpdateTodo (c fibee.Ctx) error {
 
-}
+// }
