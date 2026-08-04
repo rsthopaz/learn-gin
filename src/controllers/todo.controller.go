@@ -105,6 +105,35 @@ func DeleteTodo (c fiber.Ctx) error {
 
 }
 
-// func UpdateTodo (c fibee.Ctx) error {
+func UpdateTodo (c fibee.Ctx) error {
+	type body struct {
+		Title	string `json:"title"`
+		Description	string `json:"description"`
+		Status	string `json:"status"`
+	}
 
-// }
+	var data body
+	if err := c.Bind().Body(&data); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot parse JSON"})
+	}
+
+	update := bson.M{}
+
+	if data.Title != ""{
+		update["title"] = data.Title
+	}
+
+	if data.Description != ""{
+		update["description"] = data.Description
+	}
+
+	if data.Status != ""{
+		update["status"] = data.Status
+	}
+
+	if len(update) == 0 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error" : "No fields to update",
+		})
+	}
+}
