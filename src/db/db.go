@@ -14,7 +14,10 @@ import (
 var DB *mongo.Database
 
 func ConnectDB() {
-	_= godotenv.Load()
+	err := godotenv.Load("../../.env")
+	if err != nil {
+    log.Println("No .env file found")
+}
 
 	mongoURI := os.Getenv("MONGO_URI")
 	dbName := os.Getenv("DB_NAME")
