@@ -2,13 +2,18 @@ package middleware
 
 import (
 	"os"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
+	"github.com/gofiber/fiber/v3"
+
 )
 
-auth jwtSecret = []byte(os.Getenv("JWT_SECRET"))
+var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 func AuthMiddleware(c fiber.Ctx) error {
 
-	tokenString := c.cookies("jwt")
+	tokenString := c.Cookies("jwt")
 
 	if tokenString == "" {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
@@ -24,7 +29,7 @@ func AuthMiddleware(c fiber.Ctx) error {
 
 	claims := token.Claims.(jwt.MapClaims)
 
-	if float64(time.Now().Unix()) > claims.["exp"].(float64){
+	if float64(time.Now().Unix()) > claims["exp"].(float64){
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Token expired"})
 	}
 	
