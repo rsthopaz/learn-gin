@@ -9,15 +9,19 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/go-playground/validator/v10"
 	
 )
 
 var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 func RegisterUser(c fiber.Ctx) error {
+
+var validate = validator.New()
+
 	type request struct {
-		Email   string `json:"email"`
-		Password string `json:"password"`
+		Email   string `json:"email" validate:"required,email"`
+		Password string `json:"password" validate:"required,min=8"`
 	}
 
 
@@ -25,6 +29,12 @@ var body request
 
 if err := c.Bind().Body(&body); err != nil {
 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot parse request"})
+}
+
+if err := validate.Struct(body); err != nil {
+	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+		"error": err.Error(),
+	})
 }
 
 var existingUser models.User
