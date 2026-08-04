@@ -105,7 +105,7 @@ func DeleteTodo (c fiber.Ctx) error {
 
 }
 
-func UpdateTodo (c fibee.Ctx) error {
+func UpdateTodo (c fiber.Ctx) error {
 	type body struct {
 		Title	string `json:"title"`
 		Description	string `json:"description"`
@@ -136,4 +136,8 @@ func UpdateTodo (c fibee.Ctx) error {
 			"error" : "No fields to update",
 		})
 	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message" : "Update sucessfully",
+	})
 }
